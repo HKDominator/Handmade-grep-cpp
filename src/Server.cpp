@@ -5,7 +5,7 @@ bool match_pattern(const std::string& input_line, const std::string& pattern) {
     if (pattern.length() == 1) {
         return input_line.find(pattern) != std::string::npos;
     }
-    else if( pattern == "\d")
+    else if( pattern == "\\d") // have to escape the character
     {
         return input_line.find_first_of("0123456789") != std::string::npos;
     }
