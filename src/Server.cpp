@@ -9,6 +9,15 @@ bool match_pattern(const std::string& input_line, const std::string& pattern) {
     {
         return input_line.find_first_of("0123456789") != std::string::npos;
     }
+    else if( pattern == "\\w" )
+    {
+        for( const char& c : input_line )
+        {
+            if( isalnum(c) || c == '_' )
+                return 1;
+        }
+        return 0;
+    }
     else {
         throw std::runtime_error("Unhandled pattern " + pattern);
     }
