@@ -21,8 +21,15 @@ bool match_pattern(const std::string& input_line, const std::string& pattern) {
     }
     else if( pattern[0] == '[' && pattern[pattern.length()-1] == ']') 
     {
-        std::string substr = pattern.substr(1, pattern.length() - 2);
-        return input_line.find_first_of(substr) != std::string::npos;
+        if( pattern[1] != '^' )
+        { 
+            std::string substr = pattern.substr(1, pattern.length() - 2);
+            return input_line.find_first_of(substr) != std::string::npos;
+        }
+        else{
+            std::string substr = pattern.substr(2, pattern.length() - 2);
+            return input_line.find_first_not_of(substr) != std::string::npos;
+        }
     }
     else {
         throw std::runtime_error("Unhandled pattern " + pattern);
