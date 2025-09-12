@@ -21,12 +21,8 @@ bool match_pattern(const std::string& input_line, const std::string& pattern) {
     }
     else if( pattern[0] == '[' && pattern[pattern.length()-1] == ']') 
     {
-        char* buf = (char*) malloc(pattern.length());
-        memcpy(buf, buf+1, sizeof(buf));
-        buf[pattern.length()-2] = '\0';
-        int v = input_line.find_first_of(buf) != std::string::npos;
-        free(buf);
-        return v;
+        std::string substr = pattern.substr(1, pattern.length() - 2);
+        return input_line.find_first_of(substr) != std::string::npos;
     }
     else {
         throw std::runtime_error("Unhandled pattern " + pattern);
