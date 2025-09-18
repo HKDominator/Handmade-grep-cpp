@@ -6,7 +6,7 @@
 enum Type{
     CHAR = 1000,
     GROUP = 1001,
-    NGROUP = 1001,
+    NGROUP = 1004,
     SPECIAL_D = 1002,
     SPECIAL_W = 1003
 };
@@ -141,7 +141,7 @@ void populate_input( std::string input_line )
             }
             addCharacter(type, "", group, in_group);
             i++;
-            in_group = false;
+            //in_group = false;
         }
         else if( i < input_line.length() && input_line[i] == '\\' )
         {
@@ -164,7 +164,7 @@ void populate_input( std::string input_line )
         }
         else if( i < input_line.length() )
         {
-            addCharacter(CHAR, std::string(1,input_line[i]), "", 0);
+            addCharacter(CHAR, std::string(1,input_line[i]), "", 1);
             i++;
             //std::cerr << "da";
         }
@@ -276,11 +276,11 @@ int main(int argc, char* argv[]) {
     populate_input(pattern);
 
     try {
-        // std::vector<Element> data = myData.getInput();
-        // for( auto el : data )
-        // {
-        //     std::cerr<< el.getType() << " " << el.getValue() << " " << el.getGrouped() << '\n';
-        // }
+        std::vector<Element> data = myData.getInput();
+        for( auto el : data )
+        {
+            std::cerr<< el.getType() << " " << el.getValue() << " " << el.getGrouped() << " " << el.nonGrouped() << '\n';
+        }
         if (match_pattern(input_line, myData)) {
             std::cerr<< "da\n";
             return 0;
