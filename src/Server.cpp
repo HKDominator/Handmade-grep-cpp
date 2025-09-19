@@ -10,7 +10,8 @@ enum Type{
     SPECIAL_D = 1002,
     SPECIAL_W = 1003,
     START_LINE_ANCHOR = 1005,
-    END_LINE_ANCHOR = 1006
+    END_LINE_ANCHOR = 1006,
+    ONE_OR_MORE = 1007
 };
 
 class Element{
@@ -113,6 +114,9 @@ class Data{
 
 Data myData;
 
+/*** Prototypes ***/
+bool matchHere(const std::string& input_line, Data& myData, size_t pos);
+
 void addCharacter(int type, std::string character,  std::string group, int in_group )
 {
     Element el{type, character, group, in_group};
@@ -174,6 +178,11 @@ void populate_input( std::string input_line )
             addCharacter(END_LINE_ANCHOR, "$", "", 1);
             i++;
         }
+        else if( i < input_line.length() && input_line[i] == '+' )
+        {
+            addCharacter(ONE_OR_MORE, "+", "", 1);
+            i++;
+        }
         else if( i < input_line.length() )
         {
             addCharacter(CHAR, std::string(1,input_line[i]), "", 1);
@@ -181,6 +190,51 @@ void populate_input( std::string input_line )
             //std::cerr << "da";
         }
     }
+}
+
+bool isCharacterMatch(char c, Element& data )
+{
+    if( isdigit(c) && data.getType() == SPECIAL_D )
+        return true;
+    else if( (isalnum(c) || c == '_' ) && data.getType() == SPECIAL_W ) 
+        return true;
+    else if( data.getType() == CHAR && data.getValue().size() == 1 && data.getValue()[0] == c )
+        return true;
+    else if( data.getType() == GROUP && data.getGrouped().find(c) != std::string::npos )
+        return true;
+    else if( data.getType() == NGROUP && data.getGrouped().find(c) == std::string::npos )
+        return true;
+    return false;
+}
+
+bool matchOneOrMore(const std::string input_line, Data& myData, size_t pos )
+{
+    Element element = myData.getElementAt();
+
+    if( pos >= input_line.size() || !isCharacterMatch(input_line[pos], element) )
+        return false;
+    
+    size_t match_end = pos;
+    
+    //greedy to find as many matching as possible
+    while( match_end < input_line.size() && isCharacterMatch(input_line[match_end], element) )
+    {
+        match_end ++;
+    }
+
+    //backtracking to see all possible matches to assure that i don't bite a too big piece
+    for( size_t end = match_end; end > pos; end -- )
+    {
+        myData.inc();
+        myData.inc();// to go over the current character and the plus
+
+        if( matchHere(input_line, myData, end) )
+            return true;
+
+        myData.dec();
+        myData.dec();
+    }
+    return false;
 }
 
 bool matchHere(const std::string& input_line, Data& myData, size_t pos)
@@ -196,21 +250,15 @@ bool matchHere(const std::string& input_line, Data& myData, size_t pos)
 
     char c = input_line[pos];
     Element data = myData.getElementAt();
-    bool is_match = false;
-
+    
     if( data.getType() == END_LINE_ANCHOR && myData.getAt() == myData.getSize() - 1 )
-        return pos == input_line.size();
+    return pos == input_line.size();
+    
+    if( myData.getAt() + 1 < myData.getSize() && myData.getInput()[myData.getAt() + 1].getType() == ONE_OR_MORE )
+        return matchOneOrMore(input_line, myData, pos);
+    
+    bool is_match = isCharacterMatch(c, data);
 
-    if( isdigit(c) && data.getType() == SPECIAL_D )
-        is_match = true;
-    else if( (isalnum(c) || c == '_' ) && data.getType() == SPECIAL_W ) 
-        is_match = true;
-    else if( data.getType() == CHAR && data.getValue().size() == 1 && data.getValue()[0] == c )
-        is_match = true;
-    else if( data.getType() == GROUP && data.getGrouped().find(c) != std::string::npos )
-        is_match = true;
-    else if( data.getType() == NGROUP && data.getGrouped().find(c) == std::string::npos )
-        is_match = true;
     if( pos < input_line.size() && is_match )
     {   
         myData.inc();
