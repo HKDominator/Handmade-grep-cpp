@@ -11,7 +11,8 @@ enum Type{
     SPECIAL_W = 1003,
     START_LINE_ANCHOR = 1005,
     END_LINE_ANCHOR = 1006,
-    ONE_OR_MORE = 1007
+    ONE_OR_MORE = 1007,
+    ZERO_OR_MORE = 1008
 };
 
 class Element{
@@ -173,16 +174,25 @@ void populate_input( std::string input_line )
             addCharacter(START_LINE_ANCHOR, std::string(1, input_line[i]), "", 1);
             i++;
         }
+
         else if( i < input_line.length() && input_line[i] == '$' )
         {
             addCharacter(END_LINE_ANCHOR, "$", "", 1);
             i++;
         }
+
         else if( i < input_line.length() && input_line[i] == '+' )
         {
             addCharacter(ONE_OR_MORE, "+", "", 1);
             i++;
         }
+
+        else if( i < input_line.length() && input_line[i] == '?' )
+        {
+            addCharacter(ZERO_OR_MORE, "?", "", 1);
+            i++;
+        }
+
         else if( i < input_line.length() )
         {
             addCharacter(CHAR, std::string(1,input_line[i]), "", 1);
@@ -237,6 +247,31 @@ bool matchOneOrMore(const std::string input_line, Data& myData, size_t pos )
     return false;
 }
 
+bool matchZeroOrMore(const std::string input_line, Data& myData, size_t pos )
+{
+    Element element = myData.getElementAt();
+
+    size_t match_end = pos;
+
+    while( match_end < input_line.size() && isCharacterMatch(input_line[match_end], element) )
+    {
+        match_end ++;
+    }
+
+    for( size_t end = match_end; end >= pos; end -- )
+    {
+        myData.inc();
+        myData.inc();
+
+        if(matchHere(input_line, myData, end) )
+            return true;
+        myData.dec();
+        myData.dec();
+    }
+    return false;
+
+}
+
 bool matchHere(const std::string& input_line, Data& myData, size_t pos)
 {
 
@@ -256,6 +291,9 @@ bool matchHere(const std::string& input_line, Data& myData, size_t pos)
     
     if( myData.getAt() + 1 < myData.getSize() && myData.getInput()[myData.getAt() + 1].getType() == ONE_OR_MORE )
         return matchOneOrMore(input_line, myData, pos);
+    
+    if( myData.getAt() + 1 < myData.getSize() && myData.getInput()[myData.getAt() + 1].getType() == ZERO_OR_MORE )
+        return matchZeroOrMore(input_line, myData, pos);
     
     bool is_match = isCharacterMatch(c, data);
 
