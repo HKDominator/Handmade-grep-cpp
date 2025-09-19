@@ -8,7 +8,8 @@ enum Type{
     GROUP = 1001,
     NGROUP = 1004,
     SPECIAL_D = 1002,
-    SPECIAL_W = 1003
+    SPECIAL_W = 1003,
+    LINE_ANCHOR = 1005
 };
 
 class Element{
@@ -162,6 +163,11 @@ void populate_input( std::string input_line )
             addCharacter(value, escape, "", 1);
             i++;
         }
+        else if( i < input_line.length() && input_line[i] == '^' )
+        {
+            addCharacter(LINE_ANCHOR, std::string(1, input_line[i]), "", 1);
+            i++;
+        }
         else if( i < input_line.length() )
         {
             addCharacter(CHAR, std::string(1,input_line[i]), "", 1);
@@ -205,6 +211,12 @@ bool matchHere(const std::string& input_line, Data& myData, size_t pos)
 }
 
 bool match_pattern(const std::string& input_line, Data& myData, size_t pos = 0) {
+    myData.reset();
+    if( myData.getElementAt().getType() == LINE_ANCHOR )
+    {
+        myData.inc();
+        return matchHere(input_line, myData, pos);
+    }
     for( size_t i = pos; i <= input_line.size(); i ++ )
     {
         myData.reset();
@@ -212,38 +224,6 @@ bool match_pattern(const std::string& input_line, Data& myData, size_t pos = 0) 
             return true;
     }
     return false;
-    
-    // if (pattern.length() == 1) {
-    //     return input_line.find(pattern) != std::string::npos;
-    // }
-    // else if( pattern == "\\d") // have to escape the character
-    // {
-    //     return input_line.find_first_of("0123456789") != std::string::npos;
-    // }
-    // else if( pattern == "\\w" )
-    // {
-    //     for( const char& c : input_line )
-    //     {
-    //         if( isalnum(c) || c == '_' )
-    //             return 1;
-    //     }
-    //     return 0;
-    // }
-    // else if( pattern[0] == '[' && pattern[pattern.length()-1] == ']') 
-    // {
-    //     if( pattern[1] != '^' )
-    //     { 
-    //         std::string substr = pattern.substr(1, pattern.length() - 2);
-    //         return input_line.find_first_of(substr) != std::string::npos;
-    //     }
-    //     else{
-    //         std::string substr = pattern.substr(2, pattern.length() - 2);
-    //         return input_line.find_first_not_of(substr) != std::string::npos;
-    //     }
-    // }
-    // else {
-    //     throw std::runtime_error("Unhandled pattern " + pattern);
-    // }
 }
 
 int main(int argc, char* argv[]) {
