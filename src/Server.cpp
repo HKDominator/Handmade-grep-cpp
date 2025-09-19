@@ -9,7 +9,8 @@ enum Type{
     NGROUP = 1004,
     SPECIAL_D = 1002,
     SPECIAL_W = 1003,
-    LINE_ANCHOR = 1005
+    START_LINE_ANCHOR = 1005,
+    END_LINE_ANCHOR = 1006
 };
 
 class Element{
@@ -165,7 +166,12 @@ void populate_input( std::string input_line )
         }
         else if( i < input_line.length() && input_line[i] == '^' )
         {
-            addCharacter(LINE_ANCHOR, std::string(1, input_line[i]), "", 1);
+            addCharacter(START_LINE_ANCHOR, std::string(1, input_line[i]), "", 1);
+            i++;
+        }
+        else if( i < input_line.length() && input_line[i] == '$' )
+        {
+            addCharacter(END_LINE_ANCHOR, "$", "", 1);
             i++;
         }
         else if( i < input_line.length() )
@@ -185,12 +191,15 @@ bool matchHere(const std::string& input_line, Data& myData, size_t pos)
     if( myData.getSize() == 0 )
         return true;
     
-    if( pos >= input_line.size() )
+    if( pos > input_line.size() )
         return false;
 
     char c = input_line[pos];
     Element data = myData.getElementAt();
     bool is_match = false;
+
+    if( data.getType() == END_LINE_ANCHOR && myData.getAt() == myData.getSize() - 1 )
+        return pos == input_line.size();
 
     if( isdigit(c) && data.getType() == SPECIAL_D )
         is_match = true;
@@ -212,7 +221,7 @@ bool matchHere(const std::string& input_line, Data& myData, size_t pos)
 
 bool match_pattern(const std::string& input_line, Data& myData, size_t pos = 0) {
     myData.reset();
-    if( myData.getElementAt().getType() == LINE_ANCHOR )
+    if( myData.getElementAt().getType() == START_LINE_ANCHOR )
     {
         myData.inc();
         return matchHere(input_line, myData, pos);
