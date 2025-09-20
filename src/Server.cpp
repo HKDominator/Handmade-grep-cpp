@@ -12,7 +12,8 @@ enum Type{
     START_LINE_ANCHOR = 1005,
     END_LINE_ANCHOR = 1006,
     ONE_OR_MORE = 1007,
-    ZERO_OR_MORE = 1008
+    ZERO_OR_MORE = 1008,
+    WILDCARD = 1009
 };
 
 class Element{
@@ -193,6 +194,12 @@ void populate_input( std::string input_line )
             i++;
         }
 
+        else if( i < input_line.length() && input_line[i] == '.' )
+        {
+            addCharacter(WILDCARD, ".", "", 1);
+            i++;
+        }
+
         else if( i < input_line.length() )
         {
             addCharacter(CHAR, std::string(1,input_line[i]), "", 1);
@@ -213,6 +220,8 @@ bool isCharacterMatch(char c, Element& data )
     else if( data.getType() == GROUP && data.getGrouped().find(c) != std::string::npos )
         return true;
     else if( data.getType() == NGROUP && data.getGrouped().find(c) == std::string::npos )
+        return true;
+    else if(data.getType() == WILDCARD )
         return true;
     return false;
 }
