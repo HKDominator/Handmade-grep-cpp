@@ -13,7 +13,10 @@ enum Type{
     END_LINE_ANCHOR = 1006,
     ONE_OR_MORE = 1007,
     ZERO_OR_MORE = 1008,
-    WILDCARD = 1009
+    WILDCARD = 1009,
+    OPEN_PARENTHESIS = 1010,
+    CLOSE_PARENTHESIS = 1011,
+    COMBINE = 1012
 };
 
 class Element{
@@ -96,6 +99,11 @@ class Data{
     void reset()
     {
         at = 0;
+    }
+
+    void setAt(int pos )
+    {
+        at = pos;
     }
 
     bool validator()
@@ -200,6 +208,24 @@ void populate_input( std::string input_line )
             i++;
         }
 
+        else if( i < input_line.length() && input_line[i] == '(' )
+        {
+            addCharacter(OPEN_PARENTHESIS, "(", "", 1);
+            i++;
+        }
+
+        else if( i < input_line.length() && input_line[i] == ')' )
+        {
+            addCharacter(CLOSE_PARENTHESIS, ")", "", 1);
+            i++;
+        }
+
+        else if( i < input_line.length() && input_line[i] == '|' )
+        {
+            addCharacter(COMBINE, "|", "", 1);
+            i++;
+        }
+
         else if( i < input_line.length() )
         {
             addCharacter(CHAR, std::string(1,input_line[i]), "", 1);
@@ -278,7 +304,74 @@ bool matchZeroOrMore(const std::string input_line, Data& myData, size_t pos )
         myData.dec();
     }
     return false;
+}
 
+int findMatchingParen(Data& myData, int start )
+{
+    int depth = 1;
+    int i = start + 1;
+
+    while( i < myData.getSize() && depth > 0 )
+    {
+        if( myData.getInput()[i].getType() == OPEN_PARENTHESIS )
+            depth ++;
+        else if( myData.getInput()[i].getType() == CLOSE_PARENTHESIS )
+            depth --;
+        if( depth > 0 )
+            i ++;
+    }
+
+    return ( depth == 0 ) ? i : -1;
+
+}
+
+bool matchAlternatives( const std::string& input_line, Data& myData, size_t pos )
+{
+    int start_pos = myData.getAt();
+    
+    int group_start = start_pos;
+    int group_end  = findMatchingParen(myData, start_pos);
+
+    if( group_end == -1 )
+        return false;
+    
+    std::vector<std::pair<int, int>> alternatives;
+    int alt_start = start_pos + 1;
+    int depth = 0;
+    
+    for( int i = alt_start; i < group_end; i ++ )
+    {
+        if( myData.getInput()[i].getType() == OPEN_PARENTHESIS )
+            depth ++;
+        else if( myData.getInput()[i].getType() == CLOSE_PARENTHESIS )
+            depth --;
+        else if( myData.getInput()[i].getType() == COMBINE && depth == 0 )
+        {
+            alternatives.push_back({alt_start, i - 1});
+            alt_start = i + 1;
+        }
+    }
+    alternatives.push_back({alt_start, group_end - 1});
+
+    for( auto& alt : alternatives )
+    {
+        Data tempData;
+
+        for( int i = alt.first; i <= alt.second; i ++ )
+        {
+            Element elem = myData.getInput()[i];
+            tempData.addElement(elem);
+        }
+
+        for( int i = group_end + 1; i < myData.getSize() ; i ++ )
+        {
+            Element elem = myData.getInput()[i];
+            tempData.addElement(elem);
+        }
+        if( matchHere(input_line, tempData, pos ) )
+            return true;
+    }
+    return false;
 }
 
 bool matchHere(const std::string& input_line, Data& myData, size_t pos)
@@ -295,8 +388,13 @@ bool matchHere(const std::string& input_line, Data& myData, size_t pos)
     char c = input_line[pos];
     Element data = myData.getElementAt();
     
+    if( data.getType() == OPEN_PARENTHESIS )
+    {
+        return matchAlternatives(input_line, myData, pos);
+    }
+
     if( data.getType() == END_LINE_ANCHOR && myData.getAt() == myData.getSize() - 1 )
-    return pos == input_line.size();
+        return pos == input_line.size();
     
     if( myData.getAt() + 1 < myData.getSize() && myData.getInput()[myData.getAt() + 1].getType() == ONE_OR_MORE )
         return matchOneOrMore(input_line, myData, pos);
