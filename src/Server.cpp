@@ -503,7 +503,7 @@ int dealWithFile(const std::string& pattern, const std::vector<std::string>& fil
                 // std::cerr<<line << '\n';
                 if (match_pattern(line, myData)) {
                     if( file_names.size() > 1 ) std::cout<< file_name << ":"<< line << "\n";
-                    else std::cout<< file_name << ":"<< line << "\n";
+                    else std::cout<< line << "\n";
                     found = true;
                     //return 0;
                 } else {
