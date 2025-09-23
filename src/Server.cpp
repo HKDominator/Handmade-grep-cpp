@@ -134,7 +134,7 @@ void addCharacter(int type, std::string character,  std::string group, int in_gr
     myData.addElement(el);
 }
 
-void populate_input( std::string input_line )
+void populate_input( std::string input_line, Data& myData )
 {
     int i = 0;
     while( i < input_line.length() )
@@ -429,6 +429,78 @@ bool match_pattern(const std::string& input_line, Data& myData, size_t pos = 0) 
     return false;
 }
 
+int dealWithInput(const std::string& pattern )
+{
+    std::string input_line;
+    std::getline(std::cin, input_line);
+
+    populate_input(pattern, myData);
+
+    try {
+        std::vector<Element> data = myData.getInput();
+        for( auto el : data )
+        {
+            std::cerr<< el.getType() << " " << el.getValue() << " " << el.getGrouped() << " " << el.nonGrouped() << '\n';
+        }
+        if (match_pattern(input_line, myData)) {
+            std::cerr<<"da\n";
+            return 0;
+        } else {
+            std::cerr<<"nu\n";
+            return 1;
+        }
+    } catch (const std::runtime_error& e) {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
+}
+
+int dealWithFile(const std::string& pattern, const std::string& file_name)
+{
+    std::string input_line;
+    std::ifstream file(file_name);
+    std::vector<std::string> lines;
+    if( !file.is_open() )
+    {
+        std::cerr<<"File can not be opened" << std::endl;
+        return 1;
+    }
+
+    while( !std::getline(file, input_line) )
+    {
+        lines.push_back(input_line);
+    }
+        
+    file.close();
+
+    bool found = false;
+
+    for( auto& line : lines )
+    {
+        Data myData;
+        populate_input(pattern, myData);
+        try {
+            std::vector<Element> data = myData.getInput();
+            for( auto el : data )
+            {
+                std::cerr<< el.getType() << " " << el.getValue() << " " << el.getGrouped() << " " << el.nonGrouped() << '\n';
+            }
+            if (match_pattern(line, myData)) {
+                std::cout<< line << "\n";
+                found = true;
+                //return 0;
+            //} else {
+                //std::cerr<<"nu\n";
+                //return 1;
+            }
+        } catch (const std::runtime_error& e) {
+            std::cerr << e.what() << std::endl;
+            return 1;
+        }
+    }
+    return (found) ? 0 : 1;
+}
+
 int main(int argc, char* argv[]) {
     // Flush after every std::cout / std::cerr
     std::cout << std::unitbuf;
@@ -461,42 +533,10 @@ int main(int argc, char* argv[]) {
     std::string input_line;
     if( file_name == "" )
     {
-        std::getline(std::cin, input_line);
+        return dealWithInput(pattern);
     }
     else
     {
-        std::ifstream file(file_name);
-        if( !file.is_open() )
-        {
-            std::cerr<<"File can not be opened" << std::endl;
-            return 1;
-        }
-
-        if( !std::getline(file, input_line) )
-            return 1;
-        
-        file.close();
-    }
-    
-
-    populate_input(pattern);
-
-    try {
-        std::vector<Element> data = myData.getInput();
-        for( auto el : data )
-        {
-            std::cerr<< el.getType() << " " << el.getValue() << " " << el.getGrouped() << " " << el.nonGrouped() << '\n';
-        }
-        if (match_pattern(input_line, myData)) {
-            if( argc == 4 )
-                std::cout<< input_line << "\n";
-            return 0;
-        } else {
-            std::cerr<<"nu\n";
-            return 1;
-        }
-    } catch (const std::runtime_error& e) {
-        std::cerr << e.what() << std::endl;
-        return 1;
+        return dealWithFile(pattern, file_name);
     }
 }
