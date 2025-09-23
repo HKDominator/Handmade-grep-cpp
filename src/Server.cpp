@@ -498,7 +498,7 @@ int dealWithFile(const std::string& pattern, const std::string& file_name)
             return 1;
         }
     }
-    return (found) ? 0 : 1;
+    return (found) ? 1 : 0;
 }
 
 int main(int argc, char* argv[]) {
