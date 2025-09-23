@@ -1,8 +1,5 @@
 [![progress-banner](https://backend.codecrafters.io/progress/grep/46cefef1-3a9f-4a21-bcf3-ff988de7916f)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
 
-This is a starting point for C++ solutions to the
-["Build Your Own grep" Challenge](https://app.codecrafters.io/courses/grep/overview).
-
 [Regular expressions](https://en.wikipedia.org/wiki/Regular_expression)
 (Regexes, for short) are patterns used to match character combinations in
 strings. [`grep`](https://en.wikipedia.org/wiki/Grep) is a CLI tool for
@@ -32,7 +29,7 @@ Time to move on to the next stage!
 Note: This section is for stages 2 and beyond.
 
 1. Ensure you have `cmake` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
+1. Run `./grab.sh` to run your program, which is implemented in
    `src/Server.cpp`.
 1. Commit your changes and run `git push origin master` to submit your solution
    to CodeCrafters. Test output will be streamed to your terminal.
