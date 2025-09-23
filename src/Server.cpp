@@ -489,7 +489,7 @@ int main(int argc, char* argv[]) {
         }
         if (match_pattern(input_line, myData)) {
             if( argc == 4 )
-                std::cerr<< input_line << "\n";
+                std::cout<< input_line << "\n";
             return 0;
         } else {
             std::cerr<<"nu\n";
