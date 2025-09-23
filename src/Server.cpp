@@ -458,14 +458,13 @@ int main(int argc, char* argv[]) {
     }
 
     // Uncomment this block to pass the first stage
+    std::string input_line;
     if( file_name == "" )
     {
-        std::string input_line;
         std::getline(std::cin, input_line);
     }
     else
     {
-        std::string input_line;
         std::ifstream file(file_name);
         if( !file.is_open() )
         {
