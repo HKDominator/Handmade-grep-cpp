@@ -2,6 +2,7 @@
 #include <string>
 #include <cstring>
 #include <vector>
+#include <fstream>
 
 enum Type{
     CHAR = 1000,
@@ -436,13 +437,20 @@ int main(int argc, char* argv[]) {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     std::cerr << "Logs from your program will appear here" << std::endl;
 
-    if (argc != 3) {
-        std::cerr << "Expected two arguments" << std::endl;
+    if (argc < 3) {
+        std::cerr << "Expected at least two arguments" << std::endl;
+        return 1;
+    }
+
+    if( argc > 4 )
+    {
+        std::cerr << "Expected at most three arguments" << std::endl;
         return 1;
     }
 
     std::string flag = argv[1];
     std::string pattern = argv[2];
+    std::string file_name = (argc == 4 ) ? argv[3] : "";
 
     if (flag != "-E") {
         std::cerr << "Expected first argument to be '-E'" << std::endl;
@@ -450,9 +458,26 @@ int main(int argc, char* argv[]) {
     }
 
     // Uncomment this block to pass the first stage
-    
-    std::string input_line;
-    std::getline(std::cin, input_line);
+    if( file_name == "" )
+    {
+        std::string input_line;
+        std::getline(std::cin, input_line);
+    }
+    else
+    {
+        std::string input_line;
+        std::ifstream file(file_name);
+        if( !file.is_open() )
+        {
+            std::cerr<<"File can not be opened" << std::endl;
+            return 1;
+        }
+
+        if( !std::getline(file, input_line) )
+            return 1;
+        
+        file.close();
+    }
     
 
     populate_input(pattern);
