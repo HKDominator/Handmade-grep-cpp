@@ -203,6 +203,12 @@ void populate_input( std::string input_line, Data& myData )
             i++;
         }
 
+        else if( i < input_line.length() && input_line[i] == '*' )
+        {
+            addCharacter(ZERO_OR_MORE, "*", "", 1, myData);
+            i++;
+        }
+
         else if( i < input_line.length() && input_line[i] == '.' )
         {
             addCharacter(WILDCARD, ".", "", 1, myData);
@@ -492,14 +498,15 @@ int dealWithFile(const std::string& pattern, const std::vector<std::string>& fil
                 // std::vector<Element> data = myData.getInput();
                 // for( auto el : data )
                 // {
-                //     std::cerr<< el.getType() << " " << el.getValue() << " " << el.getGrouped() << " " << el.nonGrouped() << '\n';
+                //      std::cerr<< el.getType() << " " << el.getValue() << " " << el.getGrouped() << " " << el.nonGrouped() << '\n';
                 // }
+                // std::cerr<<line << '\n';
                 if (match_pattern(line, myData)) {
                     std::cout<< file_name << ":"<< line << "\n";
                     found = true;
                     //return 0;
-                //} else {
-                    //std::cerr<<"nu\n";
+                } else {
+                    std::cerr<<"nu\n";
                     //return 1;
                 }
             } catch (const std::runtime_error& e) {
