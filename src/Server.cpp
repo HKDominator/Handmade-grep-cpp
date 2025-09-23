@@ -488,7 +488,8 @@ int main(int argc, char* argv[]) {
             std::cerr<< el.getType() << " " << el.getValue() << " " << el.getGrouped() << " " << el.nonGrouped() << '\n';
         }
         if (match_pattern(input_line, myData)) {
-            std::cerr<< "da\n";
+            if( argc == 4 )
+                std::cerr<< input_line << "\n";
             return 0;
         } else {
             std::cerr<<"nu\n";
