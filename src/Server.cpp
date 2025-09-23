@@ -466,7 +466,7 @@ int dealWithFile(const std::string& pattern, const std::string& file_name)
         return 1;
     }
 
-    while( !std::getline(file, input_line) )
+    while( std::getline(file, input_line) )
     {
         lines.push_back(input_line);
     }
@@ -498,7 +498,7 @@ int dealWithFile(const std::string& pattern, const std::string& file_name)
             return 1;
         }
     }
-    return (found) ? 1 : 0;
+    return (found) ? 0 : 1;
 }
 
 int main(int argc, char* argv[]) {
