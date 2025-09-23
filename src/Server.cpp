@@ -123,12 +123,12 @@ class Data{
     }
 };
 
-Data myData;
+//Data myData;
 
 /*** Prototypes ***/
 bool matchHere(const std::string& input_line, Data& myData, size_t pos);
 
-void addCharacter(int type, std::string character,  std::string group, int in_group )
+void addCharacter(int type, std::string character,  std::string group, int in_group, Data& myData )
 {
     Element el{type, character, group, in_group};
     myData.addElement(el);
@@ -156,7 +156,7 @@ void populate_input( std::string input_line, Data& myData )
                 group.push_back(input_line[i]);
                 i++;
             }
-            addCharacter(type, "", group, in_group);
+            addCharacter(type, "", group, in_group, myData);
             i++;
             //in_group = false;
         }
@@ -176,60 +176,60 @@ void populate_input( std::string input_line, Data& myData )
                     value = SPECIAL_W;
                     break;
             }
-            addCharacter(value, escape, "", 1);
+            addCharacter(value, escape, "", 1, myData);
             i++;
         }
         else if( i < input_line.length() && input_line[i] == '^' )
         {
-            addCharacter(START_LINE_ANCHOR, std::string(1, input_line[i]), "", 1);
+            addCharacter(START_LINE_ANCHOR, std::string(1, input_line[i]), "", 1, myData);
             i++;
         }
 
         else if( i < input_line.length() && input_line[i] == '$' )
         {
-            addCharacter(END_LINE_ANCHOR, "$", "", 1);
+            addCharacter(END_LINE_ANCHOR, "$", "", 1, myData);
             i++;
         }
 
         else if( i < input_line.length() && input_line[i] == '+' )
         {
-            addCharacter(ONE_OR_MORE, "+", "", 1);
+            addCharacter(ONE_OR_MORE, "+", "", 1, myData);
             i++;
         }
 
         else if( i < input_line.length() && input_line[i] == '?' )
         {
-            addCharacter(ZERO_OR_MORE, "?", "", 1);
+            addCharacter(ZERO_OR_MORE, "?", "", 1, myData);
             i++;
         }
 
         else if( i < input_line.length() && input_line[i] == '.' )
         {
-            addCharacter(WILDCARD, ".", "", 1);
+            addCharacter(WILDCARD, ".", "", 1, myData);
             i++;
         }
 
         else if( i < input_line.length() && input_line[i] == '(' )
         {
-            addCharacter(OPEN_PARENTHESIS, "(", "", 1);
+            addCharacter(OPEN_PARENTHESIS, "(", "", 1, myData);
             i++;
         }
 
         else if( i < input_line.length() && input_line[i] == ')' )
         {
-            addCharacter(CLOSE_PARENTHESIS, ")", "", 1);
+            addCharacter(CLOSE_PARENTHESIS, ")", "", 1, myData);
             i++;
         }
 
         else if( i < input_line.length() && input_line[i] == '|' )
         {
-            addCharacter(COMBINE, "|", "", 1);
+            addCharacter(COMBINE, "|", "", 1, myData);
             i++;
         }
 
         else if( i < input_line.length() )
         {
-            addCharacter(CHAR, std::string(1,input_line[i]), "", 1);
+            addCharacter(CHAR, std::string(1,input_line[i]), "", 1, myData);
             i++;
             //std::cerr << "da";
         }
@@ -433,8 +433,8 @@ int dealWithInput(const std::string& pattern )
 {
     std::string input_line;
     std::getline(std::cin, input_line);
-    
-    myData = Data();
+
+    Data myData;
     populate_input(pattern, myData);
 
     try {
@@ -467,25 +467,32 @@ int dealWithFile(const std::string& pattern, const std::string& file_name)
         return 1;
     }
 
+    std::cerr << "Starting to read file..." << std::endl;
+
     while( std::getline(file, input_line) )
     {
         lines.push_back(input_line);
+        std::cerr << "Read line " << lines.size() << ": '" << input_line << "'" << std::endl;
     }
         
     file.close();
+
+    std::cerr << "Total lines read: " << lines.size() << std::endl;
 
     bool found = false;
 
     for( auto& line : lines )
     {
+        std::cerr << "Processing line: '" << line << "'" << std::endl;
         Data myData;
         populate_input(pattern, myData);
+        std::cerr << "Pattern elements after parsing: " << myData.getSize() << std::endl;
         try {
-            std::vector<Element> data = myData.getInput();
-            for( auto el : data )
-            {
-                std::cerr<< el.getType() << " " << el.getValue() << " " << el.getGrouped() << " " << el.nonGrouped() << '\n';
-            }
+            // std::vector<Element> data = myData.getInput();
+            // for( auto el : data )
+            // {
+            //     std::cerr<< el.getType() << " " << el.getValue() << " " << el.getGrouped() << " " << el.nonGrouped() << '\n';
+            // }
             if (match_pattern(line, myData)) {
                 std::cout<< line << "\n";
                 found = true;
