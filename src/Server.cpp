@@ -456,56 +456,58 @@ int dealWithInput(const std::string& pattern )
     }
 }
 
-int dealWithFile(const std::string& pattern, const std::string& file_name)
+int dealWithFile(const std::string& pattern, const std::vector<std::string>& file_names)
 {
-    std::string input_line;
-    std::ifstream file(file_name);
-    std::vector<std::string> lines;
-    if( !file.is_open() )
-    {
-        std::cerr<<"File can not be opened" << std::endl;
-        return 1;
-    }
-
-    std::cerr << "Starting to read file..." << std::endl;
-
-    while( std::getline(file, input_line) )
-    {
-        lines.push_back(input_line);
-        std::cerr << "Read line " << lines.size() << ": '" << input_line << "'" << std::endl;
-    }
-        
-    file.close();
-
-    std::cerr << "Total lines read: " << lines.size() << std::endl;
-
     bool found = false;
-
-    for( auto& line : lines )
+    for( auto& file_name : file_names )
     {
-        std::cerr << "Processing line: '" << line << "'" << std::endl;
-        Data myData;
-        populate_input(pattern, myData);
-        std::cerr << "Pattern elements after parsing: " << myData.getSize() << std::endl;
-        try {
-            // std::vector<Element> data = myData.getInput();
-            // for( auto el : data )
-            // {
-            //     std::cerr<< el.getType() << " " << el.getValue() << " " << el.getGrouped() << " " << el.nonGrouped() << '\n';
-            // }
-            if (match_pattern(line, myData)) {
-                std::cout<< line << "\n";
-                found = true;
-                //return 0;
-            //} else {
-                //std::cerr<<"nu\n";
-                //return 1;
-            }
-        } catch (const std::runtime_error& e) {
-            std::cerr << e.what() << std::endl;
+        std::string input_line;
+        std::ifstream file(file_name);
+        std::vector<std::string> lines;
+        if( !file.is_open() )
+        {
+            std::cerr<<"File can not be opened" << std::endl;
             return 1;
         }
-    }
+
+        std::cerr << "Starting to read file..." << std::endl;
+
+        while( std::getline(file, input_line) )
+        {
+            lines.push_back(input_line);
+            std::cerr << "Read line " << lines.size() << ": '" << input_line << "'" << std::endl;
+        }
+            
+        file.close();
+
+        std::cerr << "Total lines read: " << lines.size() << std::endl;
+
+        for( auto& line : lines )
+        {
+            std::cerr << "Processing line: '" << line << "'" << std::endl;
+            Data myData;
+            populate_input(pattern, myData);
+            std::cerr << "Pattern elements after parsing: " << myData.getSize() << std::endl;
+            try {
+                // std::vector<Element> data = myData.getInput();
+                // for( auto el : data )
+                // {
+                //     std::cerr<< el.getType() << " " << el.getValue() << " " << el.getGrouped() << " " << el.nonGrouped() << '\n';
+                // }
+                if (match_pattern(line, myData)) {
+                    std::cout<< file_name << ":"<< line << "\n";
+                    found = true;
+                    //return 0;
+                //} else {
+                    //std::cerr<<"nu\n";
+                    //return 1;
+                }
+            } catch (const std::runtime_error& e) {
+                std::cerr << e.what() << std::endl;
+                return 1;
+            }
+        }
+        }
     return (found) ? 0 : 1;
 }
 
@@ -522,15 +524,13 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    if( argc > 4 )
-    {
-        std::cerr << "Expected at most three arguments" << std::endl;
-        return 1;
-    }
-
     std::string flag = argv[1];
     std::string pattern = argv[2];
-    std::string file_name = (argc == 4 ) ? argv[3] : "";
+
+    std::vector<std::string> file_names;
+
+    for( int i = 3; i < argc; i ++ )
+        file_names.push_back(argv[i]);
 
     if (flag != "-E") {
         std::cerr << "Expected first argument to be '-E'" << std::endl;
@@ -538,13 +538,12 @@ int main(int argc, char* argv[]) {
     }
 
     // Uncomment this block to pass the first stage
-    std::string input_line;
-    if( file_name == "" )
+    if( argc == 3 )
     {
         return dealWithInput(pattern);
     }
     else
     {
-        return dealWithFile(pattern, file_name);
+        return dealWithFile(pattern, file_names);
     }
 }
