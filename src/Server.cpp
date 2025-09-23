@@ -433,7 +433,8 @@ int dealWithInput(const std::string& pattern )
 {
     std::string input_line;
     std::getline(std::cin, input_line);
-
+    
+    myData = Data();
     populate_input(pattern, myData);
 
     try {
