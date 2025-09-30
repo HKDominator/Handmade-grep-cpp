@@ -541,6 +541,7 @@ int main(int argc, char* argv[]) {
         std::string dir = argv[4];
         bool matched = false;
         Data myData;
+        populate_input(pattern, myData);
 
         for( auto& entry : std::filesystem::recursive_directory_iterator(dir) )
         {
