@@ -3,6 +3,7 @@
 #include <cstring>
 #include <vector>
 #include <fstream>
+#include <filesystem>
 
 enum Type{
     CHAR = 1000,
@@ -533,6 +534,32 @@ int main(int argc, char* argv[]) {
     }
 
     std::string flag = argv[1];
+    if( flag == "-r" )
+    {
+        std::string flag_E = argv[2];
+        std::string pattern = argv[3];
+        std::string dir = argv[4];
+        bool matched = false;
+        Data myData;
+
+        for( auto& entry : std::filesystem::recursive_directory_iterator(dir) )
+        {
+            if( entry.is_regular_file() )
+            {
+                std::ifstream in(entry.path());
+                std::string line;
+                while( std::getline(in, line) )
+                {
+                    if( match_pattern(line, myData) )
+                    {
+                        std::cout<<entry.path().string() << ":" << line << '\n';
+                        matched = true;
+                    }
+                }
+            }
+        }
+        return matched ? 0 : 1;
+    }
     std::string pattern = argv[2];
 
     std::vector<std::string> file_names;
